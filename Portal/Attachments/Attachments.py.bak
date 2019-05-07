@@ -1,0 +1,19 @@
+from Attachment import Attachment
+
+class Attachments(object):
+
+        def __init__(self):
+                self.listOfAttachment = []
+
+        @property
+        def listOfAttachment(self):
+                return self.__listOfAttachment
+
+        @listOfAttachment.setter
+        def listOfAttachment(self, listOfAttachment):
+                self.__listOfAttachment =  []
+                for item in listOfAttachment:
+                        if isinstance(item, Attachment):
+                                self.__listOfAttachment.append(item)
+                        else:
+                                raise ValueError('Only Attachment type allowed')

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+  <style>
+
+    body {        
+        font-size: 1.1vw;
+    }
+    footer {
+      font-size: 0.85vw;
+      line-height: 3vw;
+      color: #666666;
+      background-color: #f1f1f1;
+    }
+    footer .logo {
+        width: 80%;
+        background: url("/static/horzlogolong.png") no-repeat;
+        background-size: contain;
+    }
+    footer .logo img {
+        display: none;
+    }
+    .footer-info {
+        padding: 2vw;
+        display: -ms-grid;
+        display: grid;
+        line-height: 2vw;
+        -ms-grid-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 2vw;
+    }
+    .footer-bottom {
+        padding: 0 4vw;
+        display: -ms-grid;
+        display: grid;
+        -ms-grid-columns: 2fr 1fr;
+        grid-template-columns: 2fr 1fr;
+        background-color: #4a5162;
+        color: #fdfdfd;
+    }
+    footer a, footer a:visited {
+      color: #666666;
+    }
+    .footer-bottom a, .footer-bottom a:visited {
+      color: #fdfdfd;
+    }
+    .social {
+      margin: 0 2vw 0 0;
+      height: 2.5vw;
+      width: 2.5vw;
+      fill: #fdfdfd;
+      background-color: #4a5162;
+      border-radius: 100%;
+    }
+    .cont {
+        display: inline-block;
+        height: 100%;
+    }
+
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #8A2BE2;
+      margin-top:0vw;
+      color: #F5FFFA;
+    }
+
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+      font-weight: bold;
+      border-radius: 25px;
+    }
+
+    .tab button:hover {
+      background-color: #8A2BE2;
+    }
+
+    .tab button.active {
+      background-color: #0000FF;
+    }
+
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+
+    .main-nav {
+      height: 6.5vw;
+      position: relative;
+      display: -ms-grid;
+      display: grid;
+      -ms-grid-columns: 3fr 1.2fr 1fr 1fr 1fr 0.8fr 2fr 1fr 0.5fr;
+      grid-template-columns: 3fr 1.2fr 1fr 1fr 1fr 0.8fr 2fr 1fr 0.5fr;
+      border-bottom: 1px solid lightgray;
+      padding: 0 1.6vw 0 2vw;
+    }
+
+    .top-nav {
+      position: relative;
+      height: 1.5vw;
+      color: #fdfdfd;
+      width: 100%;
+      background-color: #4a5162;
+      border-bottom: 1px solid lightgray;
+    }
+
+    .main-nav .logo {
+      float: left;
+      height: 100%;
+      width: 50%;
+      background: url("/static/horzlogolong.png") no-repeat;
+      background-position: 0 center;
+      background-size: 100%;
+    }
+
+    .top-level-title {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #FFF5EE;
+      margin-top:5vw;
+      height: 4vw
+      text-align: center;
+      font-size: 40px;
+      font-weight: bold;
+      color: #4B0082;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+  </style>
+
+</head>
+
+{% load admissiontags %}
+{% load static %}
+
+<header>
+
+
+    <div class="top-nav">
+      <div class="main-nav">
+          <div class="logo">
+              <a href="{% static 'horzlogolong.png' %}"></a>
+          </div>
+      </div>
+    </div>
+
+</header>
+
+    <div class="top-level-title">
+      <center>
+        Personal Details
+      </center>
+    </div>
+
+<div class="tab">
+
+  {% for personalAttr in PersonalDetailsInfo.listOfPersonalAttr %}
+    {% if personalAttr.PersonalAttrName == DefaultPerAttrDisplay|firstElement%}
+      <button class="tablinks" onclick="openAttr(event, '{{personalAttr.PersonalAttrName}}')" id="defaultOpen" >{{personalAttr.PersonalAttrLabel}}</button>
+    {% elif personalAttr.PersonalAttrName in CompletedConfirmAndSubmitPer %}
+      <button class="tablinks" onclick="openAttr(event, '{{personalAttr.PersonalAttrName}}')">{{personalAttr.PersonalAttrLabel}}</button>
+    {% else %}
+      <button class="tablinks" onclick="openAttr(event, 'dummy')">{{personalAttr.PersonalAttrLabel}}</button>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% for personalAttr in PersonalDetailsInfo.listOfPersonalAttr %}
+
+  <div id="{{personalAttr.PersonalAttrName}}" class="tabcontent">
+    <form method="post">
+      <body>
+      {% csrf_token %}
+
+      <div class="container">
+                   
+          <br></br>
+
+          {% for key,value in DictOfMultipleEntriesPer.items %}
+            {% if key == personalAttr.PersonalAttrName%}
+              {% for key2, value2 in value.items %}
+
+                {% if personalAttr.MultipleEntries%}
+                  <label class="col-sm-3 control-label">{{personalAttr.PersonalAttrLabel}} Entry {{key2}} :</label>
+                {% endif %}
+                <br>
+                  
+                </br>
+                {% for subAttr in personalAttr.ListOfSubAttr%}
+                  <div class="container">
+
+                    <label class="col-sm-2 control-label">{{ subAttr.SubAttrLabel }}</label>
+                    <div class="col-sm-10">
+                            <input class="form-group"  value = "{{value2|getHashValue:subAttr.SubAttrName}}" readonly>
+                    </div>
+                  </div>
+                {% endfor %}
+
+                {% if EditEnable and not CompletedConfirmAndSubmitPer|hasItemInList:personalAttr.PersonalAttrName %}
+                <button  type="submit" formaction="{% url 'PersonalDetails' %}" name = "deleteInfo" value="['{{personalAttr.PersonalAttrName}}','{{key2}}', {{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]" style="color:red" formnovalidate>Remove Entry</button>
+                {% endif %}
+                <hr>
+
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+
+      </div>
+
+      <div class="container">
+      {% if EditEnable and not CompletedConfirmAndSubmitPer|hasItemInList:personalAttr.PersonalAttrName%}
+        {% if personalAttr.MultipleEntries or not DictOfMultipleEntriesPer|getHashValue:personalAttr.PersonalAttrName %}
+          {% for key, value in DictOfAddAddMore.items %}
+            {% if key == personalAttr.PersonalAttrName %}
+              {% for key2, value2 in value.items %}
+                {% if key2 == 'Add' and value2 == 'True' %}
+                  {% for subAttr in personalAttr.ListOfSubAttr%}
+
+                      {% if not subAttr.SubAttrChoices %}
+
+                        {% if subAttr.IsOptional  %} 
+                            <label class="col-sm-2 control-label">{{ subAttr.SubAttrLabel }}</label>
+                        {% else %}
+                            <label class="col-sm-2 control-label">{{ subAttr.SubAttrLabel }}*</label>
+                        {% endif %}
+
+                        <div class="col-sm-10">
+                              <div class="form-group">
+
+                                  {% if subAttr.IsTypeString %}
+                                      {% if 'ValidationType' in subAttr.StringConstraints.keys %}
+                                        {% if subAttr.StringConstraints|getHashValue:'ValidationType' == 'Email' %}
+                                          <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="text" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" >
+                                        {% endif %}
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="text" >
+                                      {% endif %}
+                                  {% elif subAttr.IsTypeInteger %}
+                                    {% if 'GT' in subAttr.IntegerConstraints.keys %}
+                                      {% if 'LT' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LT'}} min={{subAttr.IntegerConstraints|intHash:'GT'}} >
+                                      {% elif 'LTE' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LTE'}} min={{subAttr.IntegerConstraints|intHash:'GT'}} >
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" min={{subAttr.IntegerConstraints|intHash:'GT'}} >
+                                      {% endif %}
+                                    {%elif 'GTE' in subAttr.IntegerConstraints.keys %}
+                                      {% if 'LT' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LT'}} min={{subAttr.IntegerConstraints|intHash:'GTE'}} >
+                                      {% elif 'LTE' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LTE'}} min={{subAttr.IntegerConstraints|intHash:'GTE'}} >
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" min={{subAttr.IntegerConstraints|intHash:'GTE'}} >
+                                      {% endif %}
+                                    {% else %}
+                                      {% if 'LT' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LT'}}  >
+                                      {% elif 'LTE' in subAttr.IntegerConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" max={{subAttr.IntegerConstraints|intHash:'LTE'}} >
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="1" pattern="\d+" >
+                                      {% endif %}
+                                    {% endif %}
+                                  {% elif subAttr.IsTypeFloat %}
+                                    {% if 'GT' in subAttr.FPConstraints.keys %}
+                                      {% if 'LT' in subAttr.FPConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="0.01" max={{subAttr.FPConstraints|fpHash:'LT'}} 
+                                        min={{subAttr.FPConstraints|fpHash:'GT'}} >
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="0.01" min={{subAttr.FPConstraints|fpHash:'GT'}} >
+                                      {% endif %}
+                                    {% else %}
+                                      {% if 'LT' in subAttr.FPConstraints.keys %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="0.01" max={{subAttr.FPConstraints|fpHash:'LT'}}  >
+                                      {% else %}
+                                        <input class="form-control" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} type="number" step="0.01">
+                                      {% endif %}
+                                    {% endif %}
+                                  {% elif subAttr.IsTypeDate %}
+                                    {% if 'GT' in subAttr.DateConstraints.keys %}
+                                      {% if 'LT' in subAttr.DateConstraints.keys %}
+                                        <input  type="date" placeholder="click to show datepicker"  id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} max={{subAttr.DateConstraints|dateHash:'LT'}} min={{subAttr.DateConstraints|dateHash:'GT'}} >
+                                      {% else %}
+                                        <input  type="date" placeholder="click to show datepicker"  id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} min={{subAttr.DateConstraints|dateHash:'GT'}} >
+                                      {% endif %}
+                                    {% else %}
+                                      {% if 'LT' in subAttr.DateConstraints.keys %}
+                                        <input  type="date" placeholder="click to show datepicker"  id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} max={{subAttr.DateConstraints|dateHash:'LT'}}  >
+                                      {% else %}
+                                        <input  type="date" placeholder="click to show datepicker"  id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} >
+                                      {% endif %}
+                                    {% endif %}
+                                  {% elif subAttr.IsTypeBoolean %}
+                                      <div class="col-sm-10">
+                                        <div class="form-check form-check-inline">
+                                          <input class="form-check-input" type="radio" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} value="True">
+                                          <label class="form-check-label" for="inlineRadio1">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                          <input class="form-check-input" type="radio" id= {{subAttr.SubAttrName}} name = {{subAttr.SubAttrName}} value="False">
+                                          <label class="form-check-label" for="inlineRadio2">No</label>
+                                        </div>
+                                      </div>
+                                  {%else%}
+                                  {% endif%}
+
+                              </div>
+                        </div>
+
+                      {% endif%}
+
+                      {% if subAttr.SubAttrChoices %}
+
+                        <label class="col-sm-2 control-label">{{ subAttr.SubAttrLabel }}</label>
+                        <div class="col-sm-10">
+                           <div class="form-group">
+                          <select class="custom-select" name = "{{subAttr.SubAttrName}}"  id = "{{subAttr.SubAttrName}}" onchange='CheckChoices(this.value);'>
+                            {% for choice in subAttr.SubAttrChoices %}
+                              {% if choice != 'Other'%}
+                                <option value="{{choice}}:{{subAttr.SubAttrName}}Other:">{{choice}}</option>
+                              {% else %}
+                                {% if subAttr.IsOptional %}
+                                  <option value="{{choice}}:{{subAttr.SubAttrName}}Other:No">{{choice}}</option>
+                                {% else %}
+                                  <option value="{{choice}}:{{subAttr.SubAttrName}}Other:Yes">{{choice}}</option>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                              <input type="text" name="{{subAttr.SubAttrName}}Other" id="{{subAttr.SubAttrName}}Other" style='display:none;'/>
+                          
+                           </div>
+                        </div>
+                      {% endif%}
+                  {% endfor %}
+
+                  {%if personalAttr.MultipleEntries%}
+                    <button  id = {{personalAttr.PersonalAttrName}} type="submit" formaction="{% url 'PersonalDetails' %}" name = "addInfo" value="['{{personalAttr.PersonalAttrName}}',{{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]">Add</button>
+                    {%if  DictOfMultipleEntriesPer|getHashValue:personalAttr.PersonalAttrName %}
+                      <button  id = "cancelId" type="submit" formaction="{% url 'PersonalDetails' %}" name = "removeAddInfo" value="['{{personalAttr.PersonalAttrName}}',{{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]" formnovalidate >Cancel</button>        
+                    {% endif %}
+                    <div></div>
+                    <br></br>
+                  {% endif %}
+
+                {% elif key2 == 'AddMore' and value2 == 'True' %}
+                  {%if personalAttr.MultipleEntries%}
+                    <button  id = "addMoreId" type="submit" formaction="{% url 'PersonalDetails' %}" name = "addMoreInfo" value="['{{personalAttr.PersonalAttrName}}',{{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]">Add {{personalAttr.PersonalAttrName}} </button>
+                    <div></div>
+                    <br></br>
+                  {% elif not DictOfMultipleEntriesPer|getHashValue:personalAttr.PersonalAttrName %}
+                    <button  id = "addMoreId" type="submit" formaction="{% url 'PersonalDetails' %}" name = "addMoreInfo" value="['{{personalAttr.PersonalAttrName}}',{{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]">Add {{personalAttr.PersonalAttrName}} </button>
+                    <div></div>
+                    <br></br>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+      </div>  
+
+      <div></div>
+
+      <br></br>
+
+      <script>
+      $("#{{personalAttr.PersonalAttrName}}").click(function(event){
+
+        {% for personalAttr2 in PersonalDetailsInfo.listOfPersonalAttr %}
+            {% for subAttr in personalAttr2.ListOfSubAttr%}
+              {% if not subAttr.IsOptional  %}
+                     $("#{{subAttr.SubAttrName}}").prop('required',false);
+              {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {% for subAttr in personalAttr.ListOfSubAttr%}
+          {% if not subAttr.IsOptional  %}
+                 $("#{{subAttr.SubAttrName}}").prop('required',true);
+          {% endif %}
+        {% endfor %}
+            });
+      </script>
+
+      {% if EditEnable and not CompletedConfirmAndSubmitPer|hasItemInList:personalAttr.PersonalAttrName%}
+        <center> 
+          <button id ="NextButtonId" name="nextInfo" type="submit" formaction="{% url 'PersonalDetails' %}" value="['{{personalAttr.PersonalAttrName}}', {{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]"> Next </button> 
+        </center>
+      {% endif %}
+
+      <center>
+      {% if ConfirmEnable and not CompletedConfirmAndSubmitPer|hasItemInList:personalAttr.PersonalAttrName%}
+        <button id ="GoBackAndEditId" name="goBackAndEditInfo" type="submit" formaction="{% url 'PersonalDetails' %}" value="[{{DictOfMultipleEntriesPer|dictToStr}}, {{DictOfAddAddMore|dictToStr}}]"> Go back and Edit </button>
+        <button id ="ConfirmAndSubmitId" name="confirmAndSubmitPerInfo" type="submit" formaction="{% url 'PersonalDetails' %}" value="['{{personalAttr.PersonalAttrName}}',{{DictOfMultipleEntriesPer|dictToStr}}]"> Confirm and Submit </button>
+      {% endif %}
+      </center>
+
+    </form>
+    </body>
+    <br></br>
+  </div>
+{% endfor %}
+
+  <div id="dummy" class="tabcontent">
+    <form method="post">
+      <body>
+        <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      </body>
+    </form>
+  </div>
+
+<footer>
+
+<div class="footer-info">
+    <div class="logo">
+        <a href="{% static 'horzlogolong.png' %}"></a>
+    </div>
+    <div class="cont">
+        <ul class="center-cell">
+            <li>IIT Hyderabad</li>
+            <li>Kandi, Sangareddy</li>
+            <li>Telangana State - 502285</li>
+        </ul>
+    </div>
+    <div class="cont">
+        <div class="center-cell">
+            <a href="https://www.facebook.com/iithyderabad/" target="_blank">
+                <svg class="social" viewBox="0 0 512 512">
+                    <path class="social-icons" d="M211.9 197.4h-36.7v59.9h36.7V433.1h70.5V256.5h49.2l5.2-59.1h-54.4c0 0 0-22.1 0-33.7 0-13.9 2.8-19.5 16.3-19.5 10.9 0 38.2 0 38.2 0V82.9c0 0-40.2 0-48.8 0 -52.5 0-76.1 23.1-76.1 67.3C211.9 188.8 211.9 197.4 211.9 197.4z">
+                </svg><!--[if lt IE 9]><em>Facebook</em><![endif]--></a>
+            <a href="https://twitter.com/IITHyderabad" target="_blank">
+                <svg class="social" viewBox="0 0 512 512">
+                    <path class="social-icons" d="M419.6 168.6c-11.7 5.2-24.2 8.7-37.4 10.2 13.4-8.1 23.8-20.8 28.6-36 -12.6 7.5-26.5 12.9-41.3 15.8 -11.9-12.6-28.8-20.6-47.5-20.6 -42 0-72.9 39.2-63.4 79.9 -54.1-2.7-102.1-28.6-134.2-68 -17 29.2-8.8 67.5 20.1 86.9 -10.7-0.3-20.7-3.3-29.5-8.1 -0.7 30.2 20.9 58.4 52.2 64.6 -9.2 2.5-19.2 3.1-29.4 1.1 8.3 25.9 32.3 44.7 60.8 45.2 -27.4 21.4-61.8 31-96.4 27 28.8 18.5 63 29.2 99.8 29.2 120.8 0 189.1-102.1 185-193.6C399.9 193.1 410.9 181.7 419.6 168.6z">
+                </svg><!--[if lt IE 9]><em>Twitter</em><![endif]--></a>
+            <a href="https://www.linkedin.com/school/indian-inst-of-technology-hyderabad/" target="_blank">
+                <svg class="social" viewBox="0 0 512 512">
+                    <path class="social-icons" d="M186.4 142.4c0 19-15.3 34.5-34.2 34.5 -18.9 0-34.2-15.4-34.2-34.5 0-19 15.3-34.5 34.2-34.5C171.1 107.9 186.4 123.4 186.4 142.4zM181.4 201.3h-57.8V388.1h57.8V201.3zM273.8 201.3h-55.4V388.1h55.4c0 0 0-69.3 0-98 0-26.3 12.1-41.9 35.2-41.9 21.3 0 31.5 15 31.5 41.9 0 26.9 0 98 0 98h57.5c0 0 0-68.2 0-118.3 0-50-28.3-74.2-68-74.2 -39.6 0-56.3 30.9-56.3 30.9v-25.2H273.8z">
+                </svg><!--[if lt IE 9]><em>LinkedIn</em><![endif]-->
+            </a>
+        </div>
+    </div>
+</div>
+<div class="footer-bottom">
+    <div><div class="center-cell">&copy; Indian Institute of Technology Hyderabad, Hyderabad, India. All rights reserved</div></div>
+</div>
+</footer>
+
+<script>
+function openAttr(evt, attrName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(attrName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+<script>
+$("#NextButtonId").click(function(event){
+
+  {% for personalAttr in PersonalDetailsInfo.listOfPersonalAttr %}
+      {% for subAttr in personalAttr.ListOfSubAttr%}
+        {% if not subAttr.IsOptional  %}
+               $("#{{subAttr.SubAttrName}}").prop('required',true);
+        {% endif %}
+      {% endfor %}
+  {% endfor %}
+      });
+</script>
+
+<script type="text/javascript">
+function CheckChoices(val){
+ var val1 = val.split(":")[0]
+ var nameId = val.split(":")[1]
+ var req = val.split(":")[2]
+
+ var element=document.getElementById(nameId);
+ if(val1.toLowerCase()=='other')
+   element.style.display='block';
+ else  
+   element.style.display='none';
+
+if (req == 'Yes')
+  element.required = true;
+}
+
+</script>
+
+</html>
+
+

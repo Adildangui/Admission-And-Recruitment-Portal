@@ -1,0 +1,121 @@
+import re
+import ast
+
+class ConstraintValidator(object):
+	
+	def __init__(self,typeDict,constraintDict):
+		self._typeDict = typeDict
+		self._constraintDict = constraintDict
+
+
+	def validate(self):
+
+		listOfTypeDictValues = list(self._typeDict.values())
+		if (listOfTypeDictValues.count(True) is 0 or listOfTypeDictValues.count(True)>1):
+			raise ValueError('Exactly one type must be set to True')
+
+		listOfConstraints = list(self._constraintDict.values())
+		areConstraintsSet = {}
+	
+		for type in self._typeDict.keys():
+			if (self._constraintDict[type] == []):
+				areConstraintsSet[type]=False
+			else:
+				areConstraintsSet[type]=True
+
+		if (listOfConstraints.count([]) < 4):
+			raise ValueError('Constraints on only one type should be specified')	
+
+		if (not (set(self._typeDict.keys())==set(self._constraintDict.keys()))):
+			raise ValueError ("Validator expects same set of keys for typeDict and constraintDict")
+
+		for key in self._typeDict.keys():
+			if (self._typeDict[key]):
+				for key2 in self._constraintDict.keys():
+					if (not (key == key2) and areConstraintsSet[key2]):
+						raise ValueError ("Constraints must be specified only on the type of the attribute")
+				
+
+		for key in self._typeDict.keys():
+			if (self._typeDict[key]):
+				constraintKeys = []
+				for dict in self._constraintDict[key]:
+					if (not(len(dict.keys()) == 1)):
+						raise ValueError ("Each constraint should be represented by only one key value in dictionary")
+					constraintKeys.append(dict.keys())
+
+				constraintKeys = [item for sublist in constraintKeys for item in sublist]
+				if ("DBType" not in constraintKeys):
+					raise ValueError ("Specifying DBType corresponding to attribute is must")
+
+
+		avaiStringConstraints = ['DBType', 'REGEX', 'ValidationType']
+		avaiIntegerConstraints = ['DBType', 'GT', 'GTE', 'LT', 'LTE', 'EQ']
+		avaiFPConstraints = ['DBType', 'GT', 'LT']
+		avaiBooleanConstraints = ['DBType','EQ']
+		avaiDateConstraints = ['DBType','GT','LT']
+
+		for key in self._typeDict.keys():
+			if (self._typeDict["String"]):
+				for dict in self._constraintDict[key]:
+					if (dict.keys()[0].lower()=='DBType'.lower()):
+						if len(re.findall("VARCHAR",dict.values()[0],re.IGNORECASE)) != 1:
+							raise ValueError ("Only VARCHAR DBType supported for string")
+					elif (dict.keys()[0].lower()=='REGEX'.lower()):
+						pass
+					elif (dict.keys()[0].lower()=='ValidationType'.lower()):
+                                                if len(re.findall("EMAIL",dict.values()[0],re.IGNORECASE)) != 1:
+                                                        raise ValueError ("Only Email supported as validationType for string/(email)")
+					else:
+						raise ValueError ("Only " + str(avaiStringConstraints) + " constraints supported on String")
+
+			if (self._typeDict["Integer"]):
+				for dict in self._constraintDict[key]:
+					if (dict.keys()[0].lower()=='DBType'.lower()):
+						if ((dict.values()[0].lower() != 'INTEGER'.lower()) and (dict.values()[0].lower() != 'SMALLINT'.lower())):
+							raise ValueError ("Only INTEGER/SMALLINT DBType supported for integers")
+					elif (dict.keys()[0].lower() in ['GT'.lower(), 'GTE'.lower(), 'LT'.lower(), 'LTE'.lower(), 'EQ'.lower()]):
+						if (not isinstance(ast.literal_eval(str(dict.values()[0])),int)):
+							raise ValueError ("At Integer constraint "+ dict.keys()[0] +" integer compared to non Integer type")
+					else:
+						raise ValueError ("Only " + str(avaiIntegerConstraints) + " constraints supported on INTEGER")	
+
+			if (self._typeDict["Float"]):
+                                for dict in self._constraintDict[key]:
+                                        if (dict.keys()[0].lower()=='DBType'.lower()):
+						if(len(re.findall("FLOAT\([0-9]+\)",dict.values()[0],re.IGNORECASE)) != 1):
+							raise ValueError ("Only FLOAT(precision) DBType supported for FLOAT type")
+							if (len(re.findall("[0-9]+",dict.values()[0],re.IGNORECASE)) != 1):
+								raise ValueError ("Precision specified should be Integer type")
+					elif (dict.keys()[0].lower() in ['GT'.lower(), 'LT'.lower()]):
+						fp = re.findall("\d+\.\d+",dict.values()[0],re.IGNORECASE)
+						if (fp != [] and not isinstance(ast.literal_eval(fp[0]),float)):
+							raise ValueError ("At FP constraint "+ dict.keys()[0] +" integer compared to non FP type")
+					else:
+						raise ValueError ("Only " + str(avaiFPConstraints) + " constraints supported on FLOAT")
+							
+							
+                        if (self._typeDict["Boolean"]):
+                                for dict in self._constraintDict[key]:
+                                        if (dict.keys()[0].lower()=='DBType'.lower()):
+                                                if(len(re.findall("Boolean",dict.values()[0],re.IGNORECASE)) != 1):
+                                                        raise ValueError ("Only BOOLEAN DBType supported for Boolean type")
+					elif (dict.keys()[0].lower() in ['EQ'.lower()]):
+						if (dict.values()[0] != 'True' and dict.values()[0]!='False'):
+							raise ValueError ("Boolean constraint on " + str(dict.keys()[0])+ " can be either True or False")
+					else:
+						raise ValueError ("Only " + str(avaiBooleanConstraints) + " constraints supported on FLOAT")
+	
+
+                        if (self._typeDict["Date"]):
+                                for dict in self._constraintDict[key]:
+                                        if (dict.keys()[0].lower()=='DBType'.lower()):
+						if(len(re.findall("Date",dict.values()[0],re.IGNORECASE)) != 1):
+							raise ValueError ("Only DATE DBType supported for Date")
+					elif ((dict.keys()[0].lower() in ['GT'.lower(), 'LT'.lower()])):
+						dt = re.findall("[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]",dict.values()[0],re.IGNORECASE)
+						if len(dt) != 1:
+							raise ValueError ("Date should be specified in the format yyyy-mm-dd")
+			
+		return
+

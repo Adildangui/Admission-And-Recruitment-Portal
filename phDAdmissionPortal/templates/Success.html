@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+
+{% load admissiontags %}
+
+      <input type="hidden" id="DictOfMultipleEntriesPer" name="DictOfMultipleEntriesPer" value={{DictOfMultipleEntriesPer|dictToStr}}>
+      <input type="hidden" id="DictOfMultipleEntriesEdu" name="DictOfMultipleEntriesEdu" value={{DictOfMultipleEntriesEdu|dictToStr}}>
+      <input type="hidden" id="DictOfMultipleWorkExperiences" name="DictOfMultipleWorkExperiences" value={{DictOfMultipleWorkExperiences|dictToStr}}>
+      <input type="hidden" id="DictOfMultipleEntriesAttachments" name="DictOfMultipleEntriesAttachments" value={{DictOfMultipleEntriesAttachments|dictToStr}}>
+
+      {{DictOfMultipleEntriesPer}}
+      {{DictOfMultipleEntriesEdu}}
+      {{DictOfMultipleWorkExperiences}}
+      {{DictOfMultipleEntriesAttachments}}
+
+      Success!!
+
+<form method="post" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
+
+  {% csrf_token %}
+
+  SUCCESS
+
+</form>
+
+</html>
+
+

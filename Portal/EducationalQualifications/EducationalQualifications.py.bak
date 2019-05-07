@@ -1,0 +1,20 @@
+from Portal.EducationalQualifications.EduAttr import EduAttr
+
+class EducationalQualifications(object):
+	
+        def __init__(self):
+                self.listOfEduAttr = [] 
+
+        @property
+        def listOfEduAttr(self):
+                return self.__listOfEduAttr
+
+        @listOfEduAttr.setter
+        def listOfEduAttr(self, listOfEduAttr):
+                self.__listOfEduAttr =  []
+                for item in listOfEduAttr:
+                        if isinstance(item, EduAttr):
+                                self.__listOfEduAttr.append(item)
+                        else:
+                                raise ValueError('Only EduAttr type allowed')
+
